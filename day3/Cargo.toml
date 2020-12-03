@@ -9,5 +9,3 @@ publish = ["metaswitch"]
 
 [dependencies]
 anyhow = "1.0.34"
-recap = "0.1.1"
-serde = "1.0.117"
