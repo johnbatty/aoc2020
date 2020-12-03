@@ -1,10 +1,23 @@
 use anyhow::Result;
 use std::ops::Add;
+use std::str::FromStr;
 
-type MapRow = Vec<u8>;
+type TreeRow = Vec<bool>;
 
-struct Map {
-    rows: Vec<MapRow>,
+struct TreeMap {
+    rows: Vec<TreeRow>,
+}
+
+impl FromStr for TreeMap {
+    type Err = std::string::ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let rows = s
+            .lines()
+            .map(|line| line.trim().chars().map(|c| c == '#').collect::<Vec<bool>>())
+            .collect::<Vec<TreeRow>>();
+        Ok(TreeMap { rows })
+    }
 }
 
 struct Pos {
@@ -34,10 +47,10 @@ impl Add<&Slope> for Pos {
     }
 }
 
-impl Map {
+impl TreeMap {
     fn tree_at_pos(&self, pos: &Pos) -> bool {
         match self.rows.get(pos.y) {
-            Some(row) => row[pos.x % row.len()] == b'#',
+            Some(row) => row[pos.x % row.len()],
             None => false,
         }
     }
@@ -60,13 +73,8 @@ impl Map {
     }
 }
 
-fn parse_input(filename: &str) -> Result<Map> {
-    let rows = std::fs::read_to_string(filename)?
-        .lines()
-        .map(|s| s.bytes().collect::<MapRow>())
-        .collect();
-
-    Ok(Map { rows })
+fn parse_input(filename: &str) -> Result<TreeMap> {
+    Ok(std::fs::read_to_string(filename)?.parse()?)
 }
 
 fn main() -> Result<()> {
