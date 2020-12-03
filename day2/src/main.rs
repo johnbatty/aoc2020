@@ -5,9 +5,9 @@ use serde::Deserialize;
 #[derive(Debug, Clone, Deserialize, Recap)]
 #[recap(regex = r"(?x)
         \s*
-        (?P<policy_min>\d+)
+        (?P<policy_value1>\d+)
         -
-        (?P<policy_max>\d+)
+        (?P<policy_value2>\d+)
         \s+
         (?P<policy_letter>[a-z])
         :
@@ -16,25 +16,25 @@ use serde::Deserialize;
         \s*
     ")]
 struct PwdEntry {
-    policy_min: u32,
-    policy_max: u32,
+    policy_value1: u32,
+    policy_value2: u32,
     policy_letter: char,
     password: String,
 }
 
 impl PwdEntry {
-    fn password_char(&self, pos: u32) -> Option<char> {
-        self.password.chars().nth((pos - 1) as usize)
+    fn password_char(&self, pos: usize) -> Option<char> {
+        self.password.chars().nth(pos - 1)
     }
 
     fn password_valid_v1(&self) -> bool {
         let count = self.password.matches(self.policy_letter).count() as u32;
-        (count >= self.policy_min) && (count <= self.policy_max)
+        (count >= self.policy_value1) && (count <= self.policy_value2)
     }
 
     fn password_valid_v2(&self) -> bool {
-        let m1 = self.password_char(self.policy_min) == Some(self.policy_letter);
-        let m2 = self.password_char(self.policy_max) == Some(self.policy_letter);
+        let m1 = self.password_char(self.policy_value1 as usize) == Some(self.policy_letter);
+        let m2 = self.password_char(self.policy_value2 as usize) == Some(self.policy_letter);
         m1 ^ m2
     }
 }
