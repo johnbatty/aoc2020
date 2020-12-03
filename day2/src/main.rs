@@ -16,8 +16,8 @@ use serde::Deserialize;
         \s*
     ")]
 struct PwdEntry {
-    policy_value1: u32,
-    policy_value2: u32,
+    policy_value1: usize,
+    policy_value2: usize,
     policy_letter: char,
     password: String,
 }
@@ -28,13 +28,13 @@ impl PwdEntry {
     }
 
     fn password_valid_v1(&self) -> bool {
-        let count = self.password.matches(self.policy_letter).count() as u32;
+        let count = self.password.matches(self.policy_letter).count();
         (count >= self.policy_value1) && (count <= self.policy_value2)
     }
 
     fn password_valid_v2(&self) -> bool {
-        let m1 = self.password_char(self.policy_value1 as usize) == Some(self.policy_letter);
-        let m2 = self.password_char(self.policy_value2 as usize) == Some(self.policy_letter);
+        let m1 = self.password_char(self.policy_value1) == Some(self.policy_letter);
+        let m2 = self.password_char(self.policy_value2) == Some(self.policy_letter);
         m1 ^ m2
     }
 }
