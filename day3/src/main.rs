@@ -14,7 +14,7 @@ impl FromStr for TreeMap {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let rows = s
             .lines()
-            .map(|line| line.trim().chars().map(|c| c == '#').collect::<Vec<bool>>())
+            .map(|line| line.trim().chars().map(|c| c == '#').collect::<TreeRow>())
             .collect::<Vec<TreeRow>>();
         Ok(TreeMap { rows })
     }
