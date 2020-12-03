@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::ops::Add;
+use std::ops::AddAssign;
 use std::str::FromStr;
 
 type TreeRow = Vec<bool>;
@@ -36,14 +36,10 @@ impl Slope {
     }
 }
 
-impl Add<&Slope> for Pos {
-    type Output = Self;
-
-    fn add(self, slope: &Slope) -> Pos {
-        Pos {
-            x: self.x + slope.x,
-            y: self.y + slope.y,
-        }
+impl AddAssign<&Slope> for Pos {
+    fn add_assign(&mut self, slope: &Slope) {
+        self.x += slope.x;
+        self.y += slope.y;
     }
 }
 
@@ -66,7 +62,7 @@ impl TreeMap {
             if self.tree_at_pos(&pos) {
                 tree_count += 1;
             }
-            pos = pos + slope;
+            pos += slope;
         }
 
         tree_count
