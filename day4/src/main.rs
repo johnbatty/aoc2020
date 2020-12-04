@@ -8,19 +8,16 @@ extern crate lazy_static;
 #[derive(Debug, Clone, Deserialize, Recap)]
 #[recap(regex = r"(?x)
         \s*
-        (
-            (
-                byr:(?P<byr>\S+) |
-                iyr:(?P<iyr>\S+) |
-                eyr:(?P<eyr>\S+) | 
-                hgt:(?P<hgt>\S+) |
-                hcl:(?P<hcl>\S+) |
-                ecl:(?P<ecl>\S+) |
-                pid:(?P<pid>\S+) | 
-                cid:(?P<cid>\S+)
-            )
-        \s*
-        )+
+        ((
+            byr:(?P<byr>\S+) |
+            iyr:(?P<iyr>\S+) |
+            eyr:(?P<eyr>\S+) | 
+            hgt:(?P<hgt>\S+) |
+            hcl:(?P<hcl>\S+) |
+            ecl:(?P<ecl>\S+) |
+            pid:(?P<pid>\S+) | 
+            cid:(?P<cid>\S+)
+        )\s*)+
     ")]
 struct Passport {
     byr: String,
@@ -121,7 +118,7 @@ impl Passport {
 
 fn parse_input(filename: &str) -> Result<Vec<Passport>> {
     let data = std::fs::read_to_string(filename)?;
-    let passports: Vec<Passport> = data
+    let passports = data
         .split("\n\n")
         .filter_map(|passport| passport.parse::<Passport>().ok())
         .collect();
