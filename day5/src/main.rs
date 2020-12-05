@@ -143,8 +143,7 @@ fn main() -> Result<()> {
     let free_seat = seat_ids
         .iter()
         .zip(first_seat..)
-        .find(|(a, b)| *a != b)
-        .map(|(_a, b)| b)
+        .find_map(|(a, b)| if *a != b { Some(b) } else { None })
         .unwrap();
     println!("Part2: {}", free_seat);
 
