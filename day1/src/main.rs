@@ -29,8 +29,7 @@ fn find_n_entries(values: &[i64], n: usize, target_sum: i64) -> Option<Vec<&i64>
     values
         .iter()
         .combinations(n)
-        .filter(|v| v.iter().cloned().sum::<i64>() == target_sum)
-        .next()
+        .find(|v| v.iter().cloned().sum::<i64>() == target_sum)
 }
 
 fn parse_input(filename: &str) -> Result<Vec<i64>> {
