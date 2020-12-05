@@ -1,7 +1,9 @@
 use anyhow::Result;
+use log::error;
 use recap::Recap;
 use regex::Regex;
 use serde::Deserialize;
+use std::str::FromStr;
 #[macro_use]
 extern crate lazy_static;
 
@@ -20,6 +22,64 @@ extern crate lazy_static;
         )\s*)+
     ")]
 struct Passport {
+    byr: String,
+    iyr: String,
+    eyr: String,
+    hgt: String,
+    hcl: String,
+    ecl: String,
+    pid: String,
+    cid: Option<String>,
+}
+
+// Alternative Part2 implementation using regexes to do validation
+#[derive(Debug, Clone, Deserialize, Recap)]
+#[recap(regex = r"(?x)
+        \s*
+        ((
+            # byr (Birth Year) - four digits; at least 1920 and at most 2002.
+            byr:(?P<byr>
+                19[2-9][0-9] |
+                200[0-2]
+            ) |
+            # iyr (Issue Year) - four digits; at least 2010 and at most 2020.
+            iyr:(?P<iyr>
+                201[0-9] |
+                2020
+            ) |
+            # eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
+            eyr:(?P<eyr>
+                202[0-9] |
+                2030
+            ) | 
+            # hgt (Height) - a number followed by either cm or in:
+            # If cm, the number must be at least 150 and at most 193.
+            # If in, the number must be at least 59 and at most 76.       
+            hgt:(?P<hgt>
+                1[5-8][0-9]cm |
+                19[0-3]cm |
+                59in | 
+                6[0-9]in |
+                7[0-6]in    
+            ) |
+            # hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+            hcl:(?P<hcl>
+                (?-x:#)[0-9a-f]{6}
+            ) |
+            # ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+            ecl:(?P<ecl>
+                amb|blu|brn|gry|grn|hzl|oth
+            ) |
+            # pid (Passport ID) - a nine-digit number, including leading zeroes.
+            pid:(?P<pid>
+                \d{9}
+            ) | 
+            # cid (Country ID) - ignored, missing or not.
+            cid:(?P<cid>\S+)
+        )\s*)+
+        $
+    ")]
+struct PassportV2 {
     byr: String,
     iyr: String,
     eyr: String,
@@ -116,22 +176,39 @@ impl Passport {
     }
 }
 
-fn parse_input(filename: &str) -> Result<Vec<Passport>> {
+fn parse_input<T>(filename: &str) -> Result<Vec<T>>
+where
+    T: FromStr + std::fmt::Debug,
+    <T as std::str::FromStr>::Err: std::error::Error,
+{
     let data = std::fs::read_to_string(filename)?;
-    let passports = data
+    let values = data
         .split("\n\n")
-        .filter_map(|passport| passport.parse::<Passport>().ok())
+        .filter_map(|v| {
+            v.parse::<T>()
+                .map_err(|e| {
+                    error!("ERROR: Failed to parse:\n{}\nError: {}", v, e);
+                    e
+                })
+                .ok()
+        })
         .collect();
-    Ok(passports)
+    Ok(values)
 }
 
 fn main() -> Result<()> {
-    let passports = parse_input("data.txt")?;
+    env_logger::init();
+
+    let passports = parse_input::<Passport>("data.txt")?;
     let part1_count = passports.len();
     println!("Part 1: {}", part1_count);
 
     let part2_count = passports.iter().filter(|p| p.is_valid()).count();
     println!("Part 2: {}", part2_count);
+
+    let passports_v2 = parse_input::<PassportV2>("data.txt")?;
+    let part2_v2_count = passports_v2.len();
+    println!("Part 2 (v2): {}", part2_v2_count);
 
     Ok(())
 }
