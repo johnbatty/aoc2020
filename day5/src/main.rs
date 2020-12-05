@@ -33,8 +33,8 @@ impl Bisect for Range<usize> {
 
 #[derive(Debug)]
 struct PlanePartition {
-    rows: std::ops::Range<usize>,
-    seats: std::ops::Range<usize>,
+    rows: Range<usize>,
+    seats: Range<usize>,
 }
 
 impl PlanePartition {
@@ -106,16 +106,15 @@ impl FromStr for BoardingPass {
 
 impl BoardingPass {
     fn seat_id(&self) -> Result<u32> {
-        let mut partition = PlanePartition::new();
-        for code in &self.codes {
-            partition = match code {
+        self.codes
+            .iter()
+            .fold(PlanePartition::new(), |partition, code| match code {
                 BSPCode::Front => partition.front(),
                 BSPCode::Back => partition.back(),
                 BSPCode::Left => partition.left(),
                 BSPCode::Right => partition.right(),
-            };
-        }
-        partition.seat_id()
+            })
+            .seat_id()
     }
 }
 
